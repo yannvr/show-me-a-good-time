@@ -1,9 +1,8 @@
 <template>
-  <div>
-    <h2>{{ data.name }}</h2>
+  <div class="venue">
+    <h3>{{ data.name }}</h3>
     {{ data.categories.name }}{{ data.location.address }}
-    <!--https://ss1.4sqi.net/img/categories_v2/arts_entertainment/performingarts_dancestudio_32.png-->
-    <img 
+    <img
       :src="iconUrl"
       :alt="data.name"
       class="icon">
@@ -13,6 +12,9 @@
 <style>
   .icon {
     background: #e7b2ff;
+  }
+  .venue {
+    font-family: 'monaco';
   }
 </style>
 

@@ -1,8 +1,7 @@
 <template>
   <section class="section">
-    <!--<Title location="response.data.response.headerFullLocation"/>-->
-    <!--<p>{{ response }}</p>-->
-    <div 
+    <Title location="response.data.response.headerFullLocation"/>
+    <div
       v-if="response"
       class="columns is-mobile">
       <p>{{ response.data.response.headerFullLocation }}</p>
@@ -36,12 +35,6 @@ export default {
     const url = `${process.env.FOUR_SQUARE_URL}venues/explore?client_id=${
       process.env.FOUR_SQUARE_CLIENT_ID
     }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&`
-    if (isServer) {
-      beforeNuxtRender(({ nuxtState }) => {
-        console.log('nuxtState', nuxtState)
-        nuxtState.test = true
-      })
-    }
     return { url }
   },
   computed: {
@@ -58,7 +51,7 @@ export default {
         res(position)
       })
     })
-    // console.log('position', position)
+    console.log('position', position)
     // console.log('this', this)
     this.url += `ll=${position.coords.latitude},${
       position.coords.longitude
