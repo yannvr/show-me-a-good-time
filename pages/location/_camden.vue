@@ -82,7 +82,7 @@ export default {
   async mounted() {
     const position = await new Promise((res, rej) => {
       navigator.geolocation.getCurrentPosition(function(position) {
-        console.log(position.coords.latitude, position.coords.longitude)
+        // console.log(position.coords.latitude, position.coords.longitude)
         res(position)
       })
     })
