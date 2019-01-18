@@ -18,10 +18,10 @@ export default {
 <style scoped>
 h1 {
   font-size: 1.5rem;
-  background: red;
-  font-family: 'my_scrawlregular';
-  src: url('/font/myscrawl-webfont.woff2') format('woff2'),
-      url('/font/myscrawl-webfont.woff') format('woff');
+  text-align: center;
+  /*font-family: 'my_scrawlregular';*/
+  /*src: url('/font/myscrawl-webfont.woff2') format('woff2'),*/
+      /*url('/font/myscrawl-webfont.woff') format('woff');*/
   font-weight: normal;
   font-style: normal;
 }
