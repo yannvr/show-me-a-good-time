@@ -1,12 +1,12 @@
 <template>
   <div class="venue">
     <div class="header">
-      <h3>{{ data.name }}</h3>
-      <p> {{ data.categories.name }}{{ data.location.address }} </p>
       <img
         :src="iconUrl"
         :alt="data.name"
         class="icon">
+      <h3>{{ data.name }}</h3>
+      <p> {{ data.categories.name }}{{ data.location.address }} </p>
     </div>
   </div>
 </template>
@@ -18,29 +18,31 @@
   .header {
     display: flex;
     flex-flow: row;
-    justify-content: space-between;
-  }
+    }
 
   .icon {
     background: #ea4335;
     width: 16px;
-    /*margin-left: 4vw;*/
     height: 16px;
     max-width: 32px;
     max-height: 32px;
     overflow: scroll;
     border-radius: 10px;
-    margin-left: 1vw;
   }
 
   h3 {
     width: 60%;
+    margin-left: 2vw;
     text-overflow: ellipsis;
     overflow: hidden;
+    align-self: flex-start;
+  }
+
+  p {
+    width: 50%;
   }
 
   .venue {
-    /*font-family: 'monaco';*/
     font-size: 1.6vh;
   }
 </style>

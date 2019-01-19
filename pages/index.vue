@@ -1,8 +1,8 @@
 <template>
   <section class="section">
     <Title
-      v-if="response"
-      :location="response.data.response.headerFullLocation"/>
+      :location="fullLocation"/>
+    <Loader v-if="!response"/>
     <div
       v-if="response"
       class="venues">
@@ -21,7 +21,9 @@
 
   section {
     /*background: rgba(247, 247, 247, 0.6);*/
-    background: rgba(238, 231, 211, 0.6);
+    /*background: rgba(238, 231, 211, 0.6);*/
+    display: flex;
+    justify-content: center;
   }
 
   .gm-style-cc {
@@ -44,10 +46,6 @@
     justify-content: space-around;
   }
 
-  /*.gm-style-mtc {*/
-    /*display: none;*/
-  /*}*/
-
   /* Set the size of the div element that contains the map */
   #map {
     height: 60vh; /* The height is 400 pixels */
@@ -61,13 +59,14 @@
 <script>
   import Title from '@/components/Title'
   import Venue from '@/components/Venue'
+  import Loader from '../components/Loader'
   import mapStyles from '../components/mapStyles'
 
   const MAX_ELEMENT = 15
 
   export default {
     name: 'ShowMeAGoodTime',
-    components: { Title, Venue },
+    components: { Title, Venue, Loader },
     data() {
       return {
         location: null,
@@ -83,8 +82,11 @@
       return { url }
     },
     computed: {
+      fullLocation: function() {
+        return this.response && this.response.headerFullLocation || ''
+      },
       venues: function() {
-        const venues = this.response.data.response.groups[0].items.map(item => item.venue).slice(0, MAX_ELEMENT)
+        const venues = this.response.groups[0].items.map(item => item.venue).slice(0, MAX_ELEMENT)
         return venues.sort((a, b) => a.location.distance - b.location.distance)
       },
       initializeMap: function() {
@@ -94,7 +96,7 @@
             center: { lat: this.currentPosition.coords.latitude, lng: this.currentPosition.coords.longitude },
             styles: mapStyles.retro,
             fullscreenControl: false,
-            mapTypeControl: false,
+            mapTypeControl: false
           })
         this.venues.forEach(venue => {
           const position = { lat: venue.location.lat, lng: venue.location.lng }
@@ -121,15 +123,16 @@
       this.url += `ll=${this.currentPosition.coords.latitude},${
         this.currentPosition.coords.longitude
         }&v=20190101&section=topPicks`
-      this.response = await this.$axios.get(this.url)
+      this.response = await fetch(this.url).then(resp => resp.json())
+      this.response = this.response.response
       // console.log('position', this.currentPosition)
       const map = new google.maps.Map(
         document.getElementById('map'), {
           zoom: 15,
           center: { lat: this.currentPosition.coords.latitude, lng: this.currentPosition.coords.longitude },
-          styles: mapStyles.retro,
+          styles: mapStyles.standard,
           fullscreenControl: false,
-          mapTypeControl: false,
+          mapTypeControl: false
         })
       this.venues.forEach(venue => {
         const position = { lat: venue.location.lat, lng: venue.location.lng }
@@ -138,6 +141,8 @@
           console.log('e click', venue.name)
         })
       })
+    },
+    beforeDestroy() {
     }
   }
 </script>

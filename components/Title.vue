@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>{{ title }}</h1>
-    <h4>in {{ location }}</h4>
+    <h4 v-if="location">in {{ location }}</h4>
   </div>
 </template>
 
