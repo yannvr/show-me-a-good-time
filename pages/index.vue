@@ -73,13 +73,13 @@
     /*background: hsl(0, 0%, 93%); standard*/
     /*retro*/
     margin-top: 1rem;
-    background: #eee7d3;
+    background: rgba(251, 245, 229, 0.8);
     font-size: 1rem;
     position: absolute;
     z-index: 1;
     bottom: 0;
     width: 100%;
-    height: 40%;
+    /*max-height: 40%;*/
     overflow: scroll;
     display: flex;
     flex-direction: column;
@@ -88,7 +88,7 @@
 
   /* Set the size of the div element that contains the map */
   #map {
-    height: 60vh; /* The height is 400 pixels */
+    height: 100vh; /* The height is 400 pixels */
     width: 100%; /* The width is the width of the web page */
     position: absolute;
     top: 0;
@@ -125,9 +125,11 @@
         api: {
           venues: {
             explore: exploreUrl,
-            getVenueUrl: venueId => `${process.env.FOUR_SQUARE_URL}venues/${venueId}?client_id=${
-              process.env.FOUR_SQUARE_CLIENT_ID
-              }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
+            getVenueUrl: function(venueId) {
+              return `${process.env.FOUR_SQUARE_URL}venues/${venueId}?client_id=${
+                process.env.FOUR_SQUARE_CLIENT_ID
+                }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
+            }
           }
         }
       }

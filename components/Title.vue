@@ -30,7 +30,7 @@
   h1, h4 {
     /*background: rgba(247, 247, 247, 0.8);*/
     /*retro*/
-    background: rgba(238, 231, 211, 0.8);
+    background: rgba(251, 245, 229, 0.8)
 
   }
 

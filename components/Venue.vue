@@ -15,7 +15,8 @@
 
 <style>
   .venue {
-    margin: 0 1vmax;
+    font-size: 1.7vmax;
+    padding: 0.2em;
   }
   .header {
     display: flex;
@@ -42,10 +43,6 @@
 
   p {
     width: 50%;
-  }
-
-  .venue {
-    font-size: 1vmax;
   }
 </style>
 
