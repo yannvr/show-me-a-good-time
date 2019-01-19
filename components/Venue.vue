@@ -45,7 +45,7 @@
   }
 
   .venue {
-    font-size: 1.6vh;
+    font-size: 1vmax;
   }
 </style>
 

@@ -33,9 +33,6 @@
 </template>
 
 <script>
-import axios from 'axios'
-
-import BLogo from '@/components/Logo'
 import Title from '@/components/Title'
 
 export default {
@@ -44,7 +41,7 @@ export default {
   data() {
     return {
       results: null,
-      url: null,
+      fourSquareBaseURL: null,
       position: null
     }
   },
@@ -60,7 +57,7 @@ export default {
         nuxtState.test = true
       })
     }
-    return { url }
+    return { url: fourSquareBaseURL }
   },
   // https://nuxtjs.org/api/configuration-generate/
   generate: {
@@ -82,18 +79,13 @@ export default {
   async mounted() {
     const position = await new Promise((res, rej) => {
       navigator.geolocation.getCurrentPosition(function(position) {
-        // console.log(position.coords.latitude, position.coords.longitude)
         res(position)
       })
     })
-    // console.log('position', position)
-    // console.log('this', this)
     this.url += `ll=${position.coords.latitude},${
       position.coords.longitude
     }&v=20190101&section=topPicks`
-    // console.log('url', this.url)
-    this.results = await this.$axios.get(this.url)
-    // console.log('this.results', this.results)
+    this.results = await this.$axios.get(this.fourSquareBaseURL)
   }
 }
 </script>

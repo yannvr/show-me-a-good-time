@@ -30,9 +30,49 @@
     display: none;
   }
 
+  .venue-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .venue-details-span {
+    font-size: 12px;
+    margin-right: 1.2em;
+    font-weight: lighter;
+  }
+
+  .venue-details-heading {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    font-size: 1em;
+    justify-content: space-between;
+  }
+
+  .venue-details-content {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+  }
+
+  .venue-details-content img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .tips {
+    display: flex;
+    flex-flow: column;
+    list-style: none;
+    /*padding: 0;*/
+    /*margin: 0;*/
+    justify-content: center;
+  }
+
   .venues {
     /*background: hsl(0, 0%, 93%); standard*/
     /*retro*/
+    margin-top: 1rem;
     background: #eee7d3;
     font-size: 1rem;
     position: absolute;
@@ -70,17 +110,27 @@
     data() {
       return {
         location: null,
-        url: null,
+        fourSquareBaseURL: null,
         response: null,
         markers: null,
+        infoWindows: [],
         currentPosition: null
       }
     },
     async asyncData({ app, isServer, env }) {
-      const url = `${process.env.FOUR_SQUARE_URL}venues/explore?client_id=${
+      const exploreUrl = `${process.env.FOUR_SQUARE_URL}venues/explore?client_id=${
         process.env.FOUR_SQUARE_CLIENT_ID
-        }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&`
-      return { url }
+        }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
+      return {
+        api: {
+          venues: {
+            explore: exploreUrl,
+            getVenueUrl: venueId => `${process.env.FOUR_SQUARE_URL}venues/${venueId}?client_id=${
+              process.env.FOUR_SQUARE_CLIENT_ID
+              }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
+          }
+        }
+      }
     },
     computed: {
       fullLocation: function() {
@@ -120,11 +170,14 @@
         }
       })
 
+      console.log('this.currentPosition', this.currentPosition)
+
       // Get 4 square venues
-      this.url += `ll=${this.currentPosition.coords.latitude},${
+      const exploreAPIUrl = `${this.api.venues.explore}ll=${this.currentPosition.coords.latitude},${
         this.currentPosition.coords.longitude
-        }&v=20190101&section=topPicks`
-      this.response = await fetch(this.url).then(resp => resp.json())
+        }&section=topPicks`
+      console.log('exploreAPIUrl', exploreAPIUrl)
+      this.response = await fetch(exploreAPIUrl).then(resp => resp.json())
       this.response = this.response.response
       // console.log('position', this.currentPosition)
       const map = new google.maps.Map(
@@ -143,7 +196,7 @@
           map,
           clickable: true,
           animation: google.maps.Animation.DROP,
-          draggable: true
+          draggable: false
         })
 
         function toggleBounce() {
@@ -151,7 +204,66 @@
           setTimeout(() => marker.setAnimation(null), 1000)
         }
 
+        const venueContentString = data => {
+          let tips = data.tips.map(tip => `<li>${tip.text} ${tip.likes ? ':)' : ''}</li>`)
+          tips = `<ul class="tips">${tips}</ul>`
+          return `
+          <div class="venue-details">
+              <h3 class="venue-details-heading">
+                <a href="${data.shortUrl}">${data.name}</a>
+                <span class="venue-details-span"> ${data.address ? data.address : ''} </span>
+              </h3>
+              <div class="venue-details-content">
+                  <img src="${data.bestPhotoUrl}" alt="${data.name}"/>
+                  ${tips}
+              </div>
+          </div>`
+        }
+
+
         marker.addListener('bounce', toggleBounce)
+        marker.addListener('click', async () => {
+          // Lookup venue details
+          console.log('this.api.venues', this.api.venues)
+          const venueAPIUrl = this.api.venues.getVenueUrl(venue.id)
+          console.log('venueAPIUrl', venueAPIUrl)
+          let venueResponse
+          const infoWindows = []
+          try {
+            venueResponse = await fetch(venueAPIUrl).then(resp => resp.json())
+          } catch (error) {
+            console.error('fetch error', error)
+          }
+          console.log('venueResponse', venueResponse)
+          venueResponse = venueResponse.response
+          console.log('venueResponse after', venueResponse)
+
+          function getVenueData() {
+            const { bestPhoto, likes, shortUrl, name, location, hereNow, tips } = venueResponse.venue
+            return {
+              bestPhotoUrl: `${bestPhoto.prefix}100x100${bestPhoto.suffix}`,
+              nbLikes: likes.summary,
+              tips: tips.groups[0].items.map(tip => ({
+                createdAt: tip.createdAt,
+                text: tip.text,
+                likes: tip.likes.count
+              })),
+              hereNow: hereNow.summary,
+              name,
+              address: location.address,
+              shortUrl
+            }
+          }
+
+          const infowindow = new google.maps.InfoWindow({
+            content: venueContentString(getVenueData())
+          })
+          this.infoWindows.forEach(iw => {
+            iw.close()
+          })
+          infowindow.open(map, marker)
+          this.infoWindows.push(infowindow)
+        })
         venue.marker = marker
       })
       this.markers = markers

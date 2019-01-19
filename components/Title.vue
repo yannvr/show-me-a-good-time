@@ -37,8 +37,8 @@
   h1 {
     font-size: 1.5rem;
     /*font-family: 'my_scrawlregular';*/
-    /*src: url('/font/myscrawl-webfont.woff2') format('woff2'),*/
-    /*url('/font/myscrawl-webfont.woff') format('woff');*/
+    /*src: fourSquareBaseURL('/font/myscrawl-webfont.woff2') format('woff2'),*/
+    /*fourSquareBaseURL('/font/myscrawl-webfont.woff') format('woff');*/
     font-weight: normal;
     font-style: normal;
     text-align: center;
