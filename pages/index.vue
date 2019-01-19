@@ -72,6 +72,7 @@
         location: null,
         url: null,
         response: null,
+        markers: null,
         currentPosition: null
       }
     },
@@ -88,8 +89,8 @@
       venues: function() {
         const venues = this.response.groups[0].items.map(item => item.venue).slice(0, MAX_ELEMENT)
         return venues.sort((a, b) => a.location.distance - b.location.distance)
-      },
-      initializeMap: function() {
+      }
+      /*initializeMap: function() {
         const map = new google.maps.Map(
           document.getElementById('map'), {
             zoom: 15,
@@ -105,7 +106,7 @@
             console.log('e click', venue.name)
           })
         })
-      }
+      }*/
     },
     async mounted() {
       this.currentPosition = await new Promise((res, rej) => {
@@ -134,13 +135,26 @@
           fullscreenControl: false,
           mapTypeControl: false
         })
+      const markers = []
       this.venues.forEach(venue => {
         const position = { lat: venue.location.lat, lng: venue.location.lng }
-        let marker = new google.maps.Marker({ position, map })
-        google.maps.event.addListener(marker, 'click', function(e) {
-          console.log('e click', venue.name)
+        let marker = new google.maps.Marker({
+          position,
+          map,
+          clickable: true,
+          animation: google.maps.Animation.DROP,
+          draggable: true
         })
+
+        function toggleBounce() {
+          marker.setAnimation(google.maps.Animation.BOUNCE)
+          setTimeout(() => marker.setAnimation(null), 1000)
+        }
+
+        marker.addListener('bounce', toggleBounce)
+        venue.marker = marker
       })
+      this.markers = markers
     },
     beforeDestroy() {
     }

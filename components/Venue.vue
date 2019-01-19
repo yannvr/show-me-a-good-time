@@ -1,6 +1,8 @@
 <template>
   <div class="venue">
-    <div class="header">
+    <div 
+      class="header" 
+      @click="handleClickMarker">
       <img
         :src="iconUrl"
         :alt="data.name"
@@ -55,6 +57,11 @@
         default: () => {
         }
       },
+      marker: {
+        type: Object,
+        default: () => {
+        }
+      },
       address: {
         type: String,
         default: 'Address'
@@ -62,8 +69,12 @@
     },
     computed: {
       iconUrl: function() {
-        const imgUrl = `${this.data.categories[0].icon.prefix}32${this.data.categories[0].icon.suffix}`
-        return imgUrl
+        return `${this.data.categories[0].icon.prefix}32${this.data.categories[0].icon.suffix}`
+      }
+    },
+    methods: {
+      handleClickMarker: function (event) {
+        google.maps.event.trigger( this.data.marker, 'bounce', event );
       }
     }
 
