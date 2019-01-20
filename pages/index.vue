@@ -2,7 +2,11 @@
   <main>
     <section>
       <Title
-        :location="fullLocation"/>
+        :location="fullLocation"
+        :sections="sections"
+        :onClick="onClick"
+        :onSelect="onSelect"/>
+      />
       <Loader v-if="!response"/>
       <div
         v-if="response"
@@ -120,7 +124,7 @@
         response: null,
         markers: null,
         infoWindows: [],
-        sections: ['food', 'drinks', 'coffee', 'shops', 'arts', 'outdoors', 'sights', 'trending'],
+        sections: ['food', 'drinks', 'coffee', 'shops', 'arts', 'outdoors', 'sights', 'topPicks'], // topPicks
         theme: 'retro',
         currentPosition: null
       }
@@ -177,6 +181,10 @@
         }
         return theme
       }
+      this.toggleBounce = function() {
+          marker.setAnimation(google.maps.Animation.BOUNCE)
+          setTimeout(() => marker.setAnimation(null), 1000)
+        }
     },
     async mounted() {
 
@@ -203,6 +211,7 @@
       })
 
       console.log('this.currentPosition', this.currentPosition)
+      console.log('this.sections', this.sections)
 
       // Get 4 square venues
       const exploreAPIUrl = `${this.api.venues.explore}ll=${this.currentPosition.coords.latitude},${
@@ -233,10 +242,6 @@
           draggable: false
         })
 
-        function toggleBounce() {
-          marker.setAnimation(google.maps.Animation.BOUNCE)
-          setTimeout(() => marker.setAnimation(null), 1000)
-        }
 
         const venueContentString = data => {
           let tips = data.tips.map(tip => `<li>${tip.text} ${tip.likes ? ':)' : ''}</li>`)
@@ -264,20 +269,19 @@
             }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
         }
 
-        marker.addListener('bounce', toggleBounce)
+        // marker.addListener('bounce', toggleBounce)
+
         marker.addListener('click', async () => {
           // Lookup venue details
           console.log('this.api.venues', this.api.venues)
           const venueAPIUrl = getVenueUrl(venue.id)
           console.log('venueAPIUrl', venueAPIUrl)
           let venueResponse
-          const infoWindows = []
           try {
             venueResponse = await fetch(venueAPIUrl).then(resp => resp.json())
           } catch (error) {
             console.error('fetch error', error)
           }
-          console.log('venueResponse', venueResponse)
           venueResponse = venueResponse.response
           console.log('venueResponse after', venueResponse)
 
@@ -314,6 +318,11 @@
       this.markers = markers
     },
     beforeDestroy() {
-    }
+    },
+
+    methods: {
+      onClick: e => console.log('e', e),
+      onSelect: e => console.log('onSelect option', e),
+    },
   }
 </script>

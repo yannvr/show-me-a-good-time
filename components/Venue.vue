@@ -15,14 +15,21 @@
 
 <style>
   .venue {
-    font-size: 1.7vmax;
+    font-size: 1.3vmax;
     padding: 0.2em;
   }
+
+  @media all and (min-width: 1024px) {
+    .venue {
+      font-size: 0.7em;
+    }
+  }
+
   .header {
     display: flex;
     flex-flow: row;
     align-items: center;
-    }
+  }
 
   .icon {
     background: #ea4335;
@@ -33,7 +40,7 @@
 
   h3 {
     width: 60%;
-    margin-left: 2vw;
+    margin-left: 1em;
     text-overflow: ellipsis;
     overflow: hidden;
     align-self: flex-start;

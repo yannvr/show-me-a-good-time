@@ -1,13 +1,33 @@
 <template>
-  <div>
+  <div @click="onClick">
     <h1>{{ title }}</h1>
+    <multiselect
+      v-model="selected"
+      :options="sections"
+      @select="onSelect"/>
     <h4 v-if="location">in {{ location }}</h4>
   </div>
 </template>
 
 <script>
+  import Multiselect from 'vue-multiselect'
+
   export default {
+    name: 'Title',
+    components: { Multiselect },
     props: {
+      onClick: {
+        type: Function,
+        default: () => {},
+      },
+      onSelect: {
+        type: Function,
+        default: () => {},
+      },
+      sections: {
+        type: Array,
+        default: () => [],
+      },
       title: {
         type: String,
         default: 'Show me a good time'
@@ -16,7 +36,13 @@
         type: String,
         default: ''
       }
-    }
+    },
+    data() {
+      return {
+        selected: 'topPicks'
+      }
+    },
+
   }
 </script>
 
