@@ -118,6 +118,8 @@
         response: null,
         markers: null,
         infoWindows: [],
+        sections: ['food', 'drinks', 'coffee', 'shops', 'arts', 'outdoors', 'sights', 'trending'],
+        theme: 'retro',
         currentPosition: null
       }
     },
@@ -134,6 +136,7 @@
         }
       }
     },
+
     computed: {
       fullLocation: function() {
         return this.response && this.response.headerFullLocation || ''
@@ -141,7 +144,8 @@
       venues: function() {
         const venues = this.response.groups[0].items.map(item => item.venue).slice(0, MAX_ELEMENT)
         return venues.sort((a, b) => a.location.distance - b.location.distance)
-      }
+      },
+
       /*initializeMap: function() {
         const map = new google.maps.Map(
           document.getElementById('map'), {
@@ -160,8 +164,21 @@
         })
       }*/
     },
+    // Private scope (not observed)
+    created: function() {
+      this.getTheme = function() {
+        const searchParams = new URLSearchParams(location.search)
+        let themes = ['aubergine', 'retro', 'night', 'dark', 'silver', 'standard']
+        let theme = searchParams.get('theme') || 'retro'
+        if (themes.indexOf(theme) === -1) {
+          theme = 'retro'
+        }
+        return theme
+      }
+    },
     async mounted() {
 
+      this.theme = this.getTheme()
       function preventDefault(e) {
         e.preventDefault()
       }
@@ -199,7 +216,7 @@
           zoom: 15,
           gestureHandling: 'greedy',
           center: { lat: this.currentPosition.coords.latitude, lng: this.currentPosition.coords.longitude },
-          styles: mapStyles.standard,
+          styles: mapStyles[this.theme],
           fullscreenControl: false,
           mapTypeControl: false
         })

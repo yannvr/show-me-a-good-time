@@ -30,8 +30,8 @@
   h1, h4 {
     /*background: rgba(247, 247, 247, 0.8);*/
     /*retro*/
-    background: rgba(251, 245, 229, 0.8)
-
+    background: rgba(251, 245, 229, 0.8);
+    text-align: center;
   }
 
   h1 {
@@ -41,11 +41,6 @@
     /*fourSquareBaseURL('/font/myscrawl-webfont.woff') format('woff');*/
     font-weight: normal;
     font-style: normal;
-    text-align: center;
-  }
-
-
-  h4 {
     text-align: center;
   }
 </style>
