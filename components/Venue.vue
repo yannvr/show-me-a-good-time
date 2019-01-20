@@ -69,7 +69,7 @@
     },
     methods: {
       handleClickMarker: function (event) {
-        google.maps.event.trigger( this.data.marker, 'bounce', event );
+        google.maps.event.trigger( this.data.marker, 'click', event );
       }
     }
 

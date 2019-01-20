@@ -44,7 +44,9 @@
   }
 
   .venue-details-heading {
-    display: flex;
+     display: flex;
+    padding: 0 0.3em 0.3em 0;
+    margin: 0;
     flex-direction: row;
     width: 100%;
     font-size: 1em;
@@ -238,11 +240,15 @@
 
         const venueContentString = data => {
           let tips = data.tips.map(tip => `<li>${tip.text} ${tip.likes ? ':)' : ''}</li>`)
+          if(tips.length === 0) {
+            tips = data.location.formattedAddress.toString()
+          }
           tips = `<ul class="tips">${tips}</ul>`
           return `
           <div class="venue-details">
               <h3 class="venue-details-heading">
                 <a href="${data.shortUrl}">${data.name}</a>
+                <span class="venue-details-rating"> ${data.rating} </span>
                 <span class="venue-details-span"> ${data.address ? data.address : ''} </span>
               </h3>
               <div class="venue-details-content">
@@ -276,10 +282,11 @@
           console.log('venueResponse after', venueResponse)
 
           function getVenueData() {
-            const { bestPhoto, likes, shortUrl, name, location, hereNow, tips } = venueResponse.venue
+            const { bestPhoto, likes, shortUrl, name, location, hereNow, tips, rating} = venueResponse.venue
             return {
               bestPhotoUrl: `${bestPhoto.prefix}100x100${bestPhoto.suffix}`,
               nbLikes: likes.summary,
+              rating,
               tips: tips.groups[0].items.map(tip => ({
                 createdAt: tip.createdAt,
                 text: tip.text,
@@ -287,6 +294,7 @@
               })),
               hereNow: hereNow.summary,
               name,
+              location,
               address: location.address,
               shortUrl
             }
