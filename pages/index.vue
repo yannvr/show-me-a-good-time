@@ -1,20 +1,22 @@
 <template>
-  <section class="section">
-    <Title
-      :location="fullLocation"/>
-    <Loader v-if="!response"/>
-    <div
-      v-if="response"
-      class="venues">
+  <main>
+    <section>
+      <Title
+        :location="fullLocation"/>
+      <Loader v-if="!response"/>
       <div
-        v-for="(venue, i) of venues"
-        :key="i"
-        class="column">
-        <Venue :data="venue"/>
+        v-if="response"
+        class="venues">
+        <div
+          v-for="(venue, i) of venues"
+          :key="i"
+          class="column">
+          <Venue :data="venue"/>
+        </div>
       </div>
-    </div>
+    </section>
     <div id="map"/>
-  </section>
+  </main>
 </template>
 
 <style>
@@ -72,26 +74,28 @@
   .venues {
     /*background: hsl(0, 0%, 93%); standard*/
     /*retro*/
+    -webkit-overflow-scrolling: touch;
     margin-top: 1rem;
     background: rgba(251, 245, 229, 0.8);
     font-size: 1rem;
-    position: absolute;
+    position: fixed !important;
     z-index: 1;
     bottom: 0;
     width: 100%;
-    /*max-height: 40%;*/
+    max-height: 40%;
     overflow: scroll;
-    display: flex;
+    /*display: flex;*/
     flex-direction: column;
     justify-content: space-around;
   }
 
   /* Set the size of the div element that contains the map */
   #map {
-    height: 100vh; /* The height is 400 pixels */
+    height: 60vh; /* The height is 400 pixels */
     width: 100%; /* The width is the width of the web page */
-    position: absolute;
+    position: fixed;
     top: 0;
+    overflow: hidden;
   }
 
 </style>
@@ -124,12 +128,8 @@
       return {
         api: {
           venues: {
-            explore: exploreUrl,
-            getVenueUrl: function(venueId) {
-              return `${process.env.FOUR_SQUARE_URL}venues/${venueId}?client_id=${
-                process.env.FOUR_SQUARE_CLIENT_ID
-                }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
-            }
+            explore: exploreUrl
+
           }
         }
       }
@@ -161,6 +161,17 @@
       }*/
     },
     async mounted() {
+
+      function preventDefault(e) {
+        e.preventDefault()
+      }
+
+      function disableScroll() {
+        document.body.addEventListener('touchmove', preventDefault, { passive: false })
+      }
+
+      disableScroll()
+
       this.currentPosition = await new Promise((res, rej) => {
         try {
           navigator.geolocation.getCurrentPosition(function(position) {
@@ -182,9 +193,11 @@
       this.response = await fetch(exploreAPIUrl).then(resp => resp.json())
       this.response = this.response.response
       // console.log('position', this.currentPosition)
+      // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions.gestureHandling
       const map = new google.maps.Map(
         document.getElementById('map'), {
           zoom: 15,
+          gestureHandling: 'greedy',
           center: { lat: this.currentPosition.coords.latitude, lng: this.currentPosition.coords.longitude },
           styles: mapStyles.standard,
           fullscreenControl: false,
@@ -222,12 +235,17 @@
           </div>`
         }
 
+        function getVenueUrl(venueId) {
+          return `${process.env.FOUR_SQUARE_URL}venues/${venueId}?client_id=${
+            process.env.FOUR_SQUARE_CLIENT_ID
+            }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
+        }
 
         marker.addListener('bounce', toggleBounce)
         marker.addListener('click', async () => {
           // Lookup venue details
           console.log('this.api.venues', this.api.venues)
-          const venueAPIUrl = this.api.venues.getVenueUrl(venue.id)
+          const venueAPIUrl = getVenueUrl(venue.id)
           console.log('venueAPIUrl', venueAPIUrl)
           let venueResponse
           const infoWindows = []

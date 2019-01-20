@@ -21,16 +21,14 @@
   .header {
     display: flex;
     flex-flow: row;
+    align-items: center;
     }
 
   .icon {
     background: #ea4335;
-    width: 16px;
-    height: 16px;
-    max-width: 32px;
-    max-height: 32px;
-    overflow: scroll;
-    border-radius: 10px;
+    max-width: 24px;
+    max-height: 24px;
+    border-radius: 32px;
   }
 
   h3 {

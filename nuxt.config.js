@@ -45,7 +45,7 @@ module.exports = {
   modules: [
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/dotenv',
-    '@nuxtjs/axios'
+    // '@nuxtjs/axios'
   ],
   /*
   ** Axios module configuration
@@ -59,6 +59,11 @@ module.exports = {
     fourSquareClientId: process.env.FOUR_SQUARE_CLIENT_ID,
     fourSquareClientSecret: process.env.FOUR_SQUARE_CLIENT_SECRET
   },
+
+  // server: {
+    // port: 8000, // default: 3000
+    // host: '0.0.0.0', // default: localhost,
+  // },
 
   /*
   ** Build configuration
