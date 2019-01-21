@@ -81,16 +81,14 @@
     -webkit-overflow-scrolling: touch;
     margin-top: 1rem;
     background: rgba(251, 245, 229, 0.8);
+    left: 0;
     font-size: 1rem;
     position: fixed !important;
     z-index: 1;
     bottom: 0;
     width: 100%;
-    max-height: 40%;
+    height: 40%;
     overflow: scroll;
-    /*display: flex;*/
-    flex-direction: column;
-    justify-content: space-around;
   }
 
   /* Set the size of the div element that contains the map */
