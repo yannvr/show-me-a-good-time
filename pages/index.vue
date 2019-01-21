@@ -4,19 +4,17 @@
       <Title
         :location="fullLocation"
         :sections="sections"
-        :onClick="onClick"
         :onSelect="onSelect"/>
       />
       <Loader v-if="!response"/>
       <div
         v-if="response"
         class="venues">
-        <div
+        <Venue 
           v-for="(venue, i) of venues"
+          :data="venue"
           :key="i"
-          class="column">
-          <Venue :data="venue"/>
-        </div>
+          class="column"/>
       </div>
     </section>
     <div id="map"/>
@@ -48,7 +46,7 @@
   }
 
   .venue-details-heading {
-     display: flex;
+    display: flex;
     padding: 0 0.3em 0.3em 0;
     margin: 0;
     flex-direction: row;
@@ -60,7 +58,6 @@
   .venue-details-content {
     display: flex;
     flex-flow: row;
-    align-items: center;
   }
 
   .venue-details-content img {
@@ -72,9 +69,10 @@
     display: flex;
     flex-flow: column;
     list-style: none;
-    /*padding: 0;*/
-    /*margin: 0;*/
+    padding: 0 0 0 10px;
     justify-content: center;
+    overflow: scroll;
+    /*height: 20vh;*/
   }
 
   .venues {
@@ -125,6 +123,8 @@
         markers: null,
         infoWindows: [],
         sections: ['food', 'drinks', 'coffee', 'shops', 'arts', 'outdoors', 'sights', 'topPicks'], // topPicks
+        sectionSelected: 'topPicks',
+        map: null,
         theme: 'retro',
         currentPosition: null
       }
@@ -150,7 +150,7 @@
       venues: function() {
         const venues = this.response.groups[0].items.map(item => item.venue).slice(0, MAX_ELEMENT)
         return venues.sort((a, b) => a.location.distance - b.location.distance)
-      },
+      }
 
       /*initializeMap: function() {
         const map = new google.maps.Map(
@@ -172,6 +172,7 @@
     },
     // Private scope (not observed)
     created: function() {
+      this.markers = []
       this.getTheme = function() {
         const searchParams = new URLSearchParams(location.search)
         let themes = ['aubergine', 'retro', 'night', 'dark', 'silver', 'standard']
@@ -182,13 +183,14 @@
         return theme
       }
       this.toggleBounce = function() {
-          marker.setAnimation(google.maps.Animation.BOUNCE)
-          setTimeout(() => marker.setAnimation(null), 1000)
-        }
+        marker.setAnimation(google.maps.Animation.BOUNCE)
+        setTimeout(() => marker.setAnimation(null), 1000)
+      }
     },
     async mounted() {
 
       this.theme = this.getTheme()
+
       function preventDefault(e) {
         e.preventDefault()
       }
@@ -213,16 +215,9 @@
       console.log('this.currentPosition', this.currentPosition)
       console.log('this.sections', this.sections)
 
-      // Get 4 square venues
-      const exploreAPIUrl = `${this.api.venues.explore}ll=${this.currentPosition.coords.latitude},${
-        this.currentPosition.coords.longitude
-        }&section=topPicks`
-      console.log('exploreAPIUrl', exploreAPIUrl)
-      this.response = await fetch(exploreAPIUrl).then(resp => resp.json())
-      this.response = this.response.response
       // console.log('position', this.currentPosition)
       // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions.gestureHandling
-      const map = new google.maps.Map(
+      this.map = new google.maps.Map(
         document.getElementById('map'), {
           zoom: 15,
           gestureHandling: 'greedy',
@@ -231,98 +226,116 @@
           fullscreenControl: false,
           mapTypeControl: false
         })
-      const markers = []
-      this.venues.forEach(venue => {
-        const position = { lat: venue.location.lat, lng: venue.location.lng }
-        let marker = new google.maps.Marker({
-          position,
-          map,
-          clickable: true,
-          animation: google.maps.Animation.DROP,
-          draggable: false
-        })
-
-
-        const venueContentString = data => {
-          let tips = data.tips.map(tip => `<li>${tip.text} ${tip.likes ? ':)' : ''}</li>`)
-          if(tips.length === 0) {
-            tips = data.location.formattedAddress.toString()
-          }
-          tips = `<ul class="tips">${tips}</ul>`
-          return `
-          <div class="venue-details">
-              <h3 class="venue-details-heading">
-                <a href="${data.shortUrl}">${data.name}</a>
-                <span class="venue-details-rating"> ${data.rating} </span>
-                <span class="venue-details-span"> ${data.address ? data.address : ''} </span>
-              </h3>
-              <div class="venue-details-content">
-                  <img src="${data.bestPhotoUrl}" alt="${data.name}"/>
-                  ${tips}
-              </div>
-          </div>`
-        }
-
-        function getVenueUrl(venueId) {
-          return `${process.env.FOUR_SQUARE_URL}venues/${venueId}?client_id=${
-            process.env.FOUR_SQUARE_CLIENT_ID
-            }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
-        }
-
-        // marker.addListener('bounce', toggleBounce)
-
-        marker.addListener('click', async () => {
-          // Lookup venue details
-          console.log('this.api.venues', this.api.venues)
-          const venueAPIUrl = getVenueUrl(venue.id)
-          console.log('venueAPIUrl', venueAPIUrl)
-          let venueResponse
-          try {
-            venueResponse = await fetch(venueAPIUrl).then(resp => resp.json())
-          } catch (error) {
-            console.error('fetch error', error)
-          }
-          venueResponse = venueResponse.response
-          console.log('venueResponse after', venueResponse)
-
-          function getVenueData() {
-            const { bestPhoto, likes, shortUrl, name, location, hereNow, tips, rating} = venueResponse.venue
-            return {
-              bestPhotoUrl: `${bestPhoto.prefix}100x100${bestPhoto.suffix}`,
-              nbLikes: likes.summary,
-              rating,
-              tips: tips.groups[0].items.map(tip => ({
-                createdAt: tip.createdAt,
-                text: tip.text,
-                likes: tip.likes.count
-              })),
-              hereNow: hereNow.summary,
-              name,
-              location,
-              address: location.address,
-              shortUrl
-            }
-          }
-
-          const infowindow = new google.maps.InfoWindow({
-            content: venueContentString(getVenueData())
-          })
-          this.infoWindows.forEach(iw => {
-            iw.close()
-          })
-          infowindow.open(map, marker)
-          this.infoWindows.push(infowindow)
-        })
-        venue.marker = marker
-      })
-      this.markers = markers
+      // TODO? GEt more markers but requires pagination
+      // this.map.addListener('zoom_changed', () => this.populateMapVenues(this.map, this.sectionSelected) );
+      this.populateMapVenues(this.map)
     },
     beforeDestroy() {
     },
 
     methods: {
-      onClick: e => console.log('e', e),
-      onSelect: e => console.log('onSelect option', e),
-    },
+      onSelect: function sectionSelected(sectionSelected) {
+        // Remove existing markers
+        console.log('markers to remove', this.markers)
+        this.markers.forEach(marker => {
+          marker.setMap(null)
+        })
+        this.markers.length = 0
+        this.populateMapVenues(this.map, sectionSelected)
+      },
+      populateMapVenues: async function(map, sectionSelected = 'topPicks') {
+        // Get 4 square venues
+        const exploreAPIUrl = `${this.api.venues.explore}ll=${this.currentPosition.coords.latitude},${
+          this.currentPosition.coords.longitude
+          }&section=${sectionSelected}`
+        console.log('exploreAPIUrl', exploreAPIUrl)
+        this.response = await fetch(exploreAPIUrl).then(resp => resp.json())
+        this.response = this.response.response
+
+        this.venues.forEach(venue => {
+          const position = { lat: venue.location.lat, lng: venue.location.lng }
+          let marker = new google.maps.Marker({
+            position,
+            map,
+            clickable: true,
+            animation: google.maps.Animation.DROP,
+            draggable: false
+          })
+
+          const venueContentString = data => {
+            let tips = data.tips.map(tip => `<li>${tip.text} ${tip.likes ? ':)' : ''}</li>`)
+            if (tips.length === 0) {
+              tips = data.location.formattedAddress.toString()
+            }
+            tips = `<ul class="tips">${tips}</ul>`
+            return `
+              <div class="venue-details">
+                  <h3 class="venue-details-heading">
+                    <a href="${data.shortUrl}">${data.name}</a>
+                    <span class="venue-details-rating"> ${data.rating} </span>
+                    <span class="venue-details-span"> ${data.address ? data.address : ''} </span>
+                  </h3>
+                  <div class="venue-details-content">
+                      <img src="${data.bestPhotoUrl}" alt="${data.name}"/>
+                      ${tips}
+                  </div>
+              </div>`
+          }
+
+          function getVenueUrl(venueId) {
+            return `${process.env.FOUR_SQUARE_URL}venues/${venueId}?client_id=${
+              process.env.FOUR_SQUARE_CLIENT_ID
+              }&client_secret=${process.env.FOUR_SQUARE_CLIENT_SECRET}&v=20190101&`
+          }
+
+          // marker.addListener('bounce', toggleBounce)
+
+          marker.addListener('click', async () => {
+            // Lookup venue details
+            console.log('this.api.venues', this.api.venues)
+            const venueAPIUrl = getVenueUrl(venue.id)
+            console.log('venueAPIUrl', venueAPIUrl)
+            let venueResponse
+            try {
+              venueResponse = await fetch(venueAPIUrl).then(resp => resp.json())
+            } catch (error) {
+              console.error('fetch error', error)
+            }
+            venueResponse = venueResponse.response
+            console.log('venueResponse after', venueResponse)
+
+            function getVenueData() {
+              const { bestPhoto, likes, shortUrl, name, location, hereNow, tips, rating } = venueResponse.venue
+              return {
+                bestPhotoUrl: `${bestPhoto.prefix}100x100${bestPhoto.suffix}`,
+                nbLikes: likes.summary,
+                rating,
+                tips: tips.groups[0].items.map(tip => ({
+                  createdAt: tip.createdAt,
+                  text: tip.text,
+                  likes: tip.likes.count
+                })),
+                hereNow: hereNow.summary,
+                name,
+                location,
+                address: location.address,
+                shortUrl
+              }
+            }
+
+            const infowindow = new google.maps.InfoWindow({
+              content: venueContentString(getVenueData())
+            })
+            this.infoWindows.forEach(iw => {
+              iw.close()
+            })
+            infowindow.open(map, marker)
+            this.infoWindows.push(infowindow)
+          })
+          venue.marker = marker
+          this.markers.push(marker)
+        })
+      }
+    }
   }
 </script>

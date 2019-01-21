@@ -1,7 +1,9 @@
 <template>
   <div @click="onClick">
     <h1>{{ title }}</h1>
+    <h4 v-if="location">in {{ location }}</h4>
     <multiselect
+      v-if="location"
       v-model="selected"
       :options="sections"
       @select="onSelect"/>
@@ -62,9 +64,6 @@
 
   h1 {
     font-size: 1.5rem;
-    /*font-family: 'my_scrawlregular';*/
-    /*src: fourSquareBaseURL('/font/myscrawl-webfont.woff2') format('woff2'),*/
-    /*fourSquareBaseURL('/font/myscrawl-webfont.woff') format('woff');*/
     font-weight: normal;
     font-style: normal;
     text-align: center;
