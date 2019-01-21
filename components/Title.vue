@@ -6,6 +6,7 @@
       v-if="location"
       v-model="selected"
       :options="sections"
+      class="multiselect"
       @select="onSelect"/>
     <h4 v-if="location">in {{ location }}</h4>
   </div>
@@ -60,6 +61,10 @@
     /*retro*/
     background: rgba(251, 245, 229, 0.8);
     text-align: center;
+  }
+
+  .multiselect {
+    z-index: 3;
   }
 
   h1 {

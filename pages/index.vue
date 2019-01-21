@@ -4,7 +4,7 @@
       <Title
         :location="fullLocation"
         :sections="sections"
-        :onSelect="onSelect"/>
+        :onSelect="onSelect"
       />
       <Loader v-if="!response"/>
       <div
@@ -28,6 +28,10 @@
     /*background: rgba(238, 231, 211, 0.6);*/
     display: flex;
     justify-content: center;
+  }
+
+  main {
+    height: 100vh;
   }
 
   .gm-style-cc {
@@ -83,20 +87,20 @@
     background: rgba(251, 245, 229, 0.8);
     left: 0;
     font-size: 1rem;
-    position: fixed !important;
+    position: absolute;
     z-index: 1;
     bottom: 0;
     width: 100%;
-    height: 40%;
+    max-height: 40%;
     overflow: scroll;
   }
 
   /* Set the size of the div element that contains the map */
   #map {
-    height: 60vh; /* The height is 400 pixels */
+    height: 50%; /* The height is 400 pixels */
     width: 100%; /* The width is the width of the web page */
     position: fixed;
-    top: 0;
+    top: 10%;
     overflow: hidden;
   }
 
@@ -224,6 +228,7 @@
           fullscreenControl: false,
           mapTypeControl: false
         })
+      window.map = this.map
       // TODO? GEt more markers but requires pagination
       // this.map.addListener('zoom_changed', () => this.populateMapVenues(this.map, this.sectionSelected) );
       this.populateMapVenues(this.map)
@@ -243,6 +248,7 @@
       },
       populateMapVenues: async function(map, sectionSelected = 'topPicks') {
         // Get 4 square venues
+        this.map.setCenter({lat: this.currentPosition.coords.latitude, lng: this.currentPosition.coords.longitude})
         const exploreAPIUrl = `${this.api.venues.explore}ll=${this.currentPosition.coords.latitude},${
           this.currentPosition.coords.longitude
           }&section=${sectionSelected}`
@@ -327,7 +333,10 @@
             this.infoWindows.forEach(iw => {
               iw.close()
             })
+            // Make space for infowindow
             infowindow.open(map, marker)
+            // map.panBy(0, 100)
+            window.infowindow = infowindow
             this.infoWindows.push(infowindow)
           })
           venue.marker = marker
