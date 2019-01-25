@@ -8,14 +8,14 @@
         :alt="data.name"
         class="icon">
       <h3>{{ data.name }}</h3>
-      <p> {{ data.categories.name }}{{ data.location.address }} </p>
+      <p> {{ data.categories[0].title }}{{ data.location.address1 }} </p>
     </div>
   </div>
 </template>
 
 <style>
   .venue {
-    font-size: 1.3vmax;
+    font-size: 1.5vmax;
     padding: 0.2em;
   }
 
@@ -26,16 +26,10 @@
   }
 
   .header {
+    cursor: pointer;
     display: flex;
     flex-flow: row;
     align-items: center;
-  }
-
-  .icon {
-    background: #ea4335;
-    max-width: 24px;
-    max-height: 24px;
-    border-radius: 32px;
   }
 
   h3 {
@@ -43,7 +37,6 @@
     margin-left: 1em;
     text-overflow: ellipsis;
     overflow: hidden;
-    align-self: flex-start;
   }
 
   p {
@@ -71,7 +64,7 @@
     },
     computed: {
       iconUrl: function() {
-        return `${this.data.categories[0].icon.prefix}32${this.data.categories[0].icon.suffix}`
+        return `${this.data.image_url.replace(/\/o.jpg$/, '/ss.jpg')}`
       }
     },
     methods: {

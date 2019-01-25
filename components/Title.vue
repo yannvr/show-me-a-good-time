@@ -1,14 +1,12 @@
 <template>
   <div @click="onClick">
-    <h1>{{ title }}</h1>
-    <h4 v-if="location">in {{ location }}</h4>
+    <h1>Show me a good {{ sectionSelected || 'time' }}</h1>
+    <!--<h4 v-if="location">in {{ location }}</h4>-->
     <multiselect
-      v-if="location"
       v-model="selected"
       :options="sections"
       class="multiselect"
       @select="onSelect"/>
-    <h4 v-if="location">in {{ location }}</h4>
   </div>
 </template>
 
@@ -35,14 +33,14 @@
         type: String,
         default: 'Show me a good time'
       },
-      location: {
+      sectionSelected: {
         type: String,
         default: ''
       }
     },
     data() {
       return {
-        selected: 'topPicks'
+        selected: 'all'
       }
     },
 
@@ -52,8 +50,10 @@
 <style scoped>
   div {
     z-index: 5;
-    position: fixed;
+    position: absolute;
+    top: 0;
     width: 100%;
+    height: 8%;
   }
 
   h1, h4 {
@@ -64,7 +64,7 @@
   }
 
   .multiselect {
-    z-index: 3;
+    top: 30px;
   }
 
   h1 {
