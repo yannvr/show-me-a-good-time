@@ -109,7 +109,7 @@
 <script>
   import Title from '@/components/Title'
   import Venue from '@/components/Venue'
-  import Loader from '../components/Loader'
+  import Loader from '../components/LoaderTarget'
   import mapStyles from '../components/mapStyles'
 
   const ZOOM = 16
@@ -124,8 +124,8 @@
         response: null,
         markers: null,
         infoWindows: [],
-        sections: ['Food', 'Drinks', 'Coffee', 'Arts', 'Landmarks', 'All'], // topPicks
-        sectionSelected: '',
+        sections: ['topPicks', 'Food', 'Drinks', 'Coffee', 'Arts', 'Landmarks', 'All'], // topPicks
+        sectionSelected: 'topPicks',
         map: null,
         theme: 'retro',
         currentPosition: null
