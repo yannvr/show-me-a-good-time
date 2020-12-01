@@ -2,7 +2,8 @@
 Find great place near you in one tap
 
 # installation
-git clone git@github.com:yannvr/show-me-a-good-time.git
+- `git clone git@github.com:yannvr/show-me-a-good-time.git`
+- `npm install`
+- `npm dev`
 
-show-me-a-good-time$ npm install
-show-me-a-good-time$ npm dev
+dédiée a fusette!
